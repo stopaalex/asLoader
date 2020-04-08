@@ -1,0 +1,22 @@
+{
+  "name": "asloader",
+  "version": "1.0.0",
+  "description": "asLoader is a Github like full page progress loader for developers to use.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stopaalex/asLoader.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stopaalex/asLoader/issues"
+  },
+  "homepage": "https://github.com/stopaalex/asLoader#readme",
+  "devDependencies": {
+    "http-server": "^0.12.1"
+  }
+}

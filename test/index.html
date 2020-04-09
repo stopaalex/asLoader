@@ -8,6 +8,23 @@
 <body>
     Hello, World!
 
+    <button onclick="loader.start()">Start</button>
+
+    <button onclick="loader.end()">End plain</button>
+    <button onclick="loader.success()">End success</button>
+    <button onclick="loader.failure()">End fail</button>
+
     <script src="../src/index.js"></script>
+
+    <script>
+
+        var loader = new asLoader({
+            locationType: 'custom',
+            location: [42,0,null,0],
+            height: 4,
+            color: 'teal'
+        });
+
+    </script>
 </body>
 </html>

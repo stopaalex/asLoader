@@ -98,7 +98,7 @@ const asLoader = function () {
 
         // set the interval
         loadingInterval = setInterval(() => {
-            loadingPercent = 92 - ((100 - loadingPercent) / 2);
+            loadingPercent = 95 - ((100 - loadingPercent) / 2);
 
             document.getElementById('asLoaderBar').style.width = loadingPercent + '%';
         }, 500)

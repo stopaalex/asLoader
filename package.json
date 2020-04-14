@@ -17,6 +17,16 @@
   },
   "homepage": "https://github.com/stopaalex/asLoader#readme",
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "babel": "^6.23.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-clean": "^0.4.0",
+    "gulp-json-editor": "^2.5.4",
+    "gulp-strip-debug": "^3.0.0",
+    "gulp-uglify": "^3.0.2",
     "http-server": "^0.12.1"
   }
 }

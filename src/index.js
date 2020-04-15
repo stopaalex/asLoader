@@ -29,12 +29,16 @@ const asLoader = function () {
         // check for location
         if (!args['location']) { setDefualtLocation(); }
         else {
-            if (args['location'].length !== 4) { setDefualtLocation(); }
+            if (args['location'].length !== 4 && args['locationType'] === 'custom') { setDefualtLocation(); }
             else {
-                for (let i = 0; i < 4; i++) {
-                    if (typeof args['location'][i] !== 'number') {
-                        if (args['location'][i] !== null) { setDefualtLocation(); break; }
+                if (args['location'].length === 4) {
+                    for (let i = 0; i < 4; i++) {
+                        if (typeof args['location'][i] !== 'number') {
+                            if (args['location'][i] !== null) { setDefualtLocation(); break; }
+                        }
                     }
+                } else {
+                    console.log('id element');
                 }
             }
         }
@@ -98,7 +102,7 @@ const asLoader = function () {
 
         // set the interval
         loadingInterval = setInterval(() => {
-            loadingPercent = 95 - ((100 - loadingPercent) / 2);
+            loadingPercent = 95 - ((95 - loadingPercent) / 2);
 
             document.getElementById('asLoaderBar').style.width = loadingPercent + '%';
         }, 500)
@@ -158,6 +162,7 @@ const asLoader = function () {
                 font-family: arial;\
                 position: absolute;\
                 top: 50%;\
+                transition: 250ms;\
                 transform: translate(0, -50%) scaleX(1.5) scaleY(1.25);\
                 color: red;\
                 background: radial-gradient(circle, white 50%, rgba(255,255,255,0) 100%);\
@@ -176,6 +181,10 @@ const asLoader = function () {
             @keyframes fadeInX {\
                 0% {opacity: 0 }\
                 100% {opacity: 1 }\
+            }\
+            .as-loader-xmark-fadeout {\
+                transition: 350ms;\
+                opacity: 0;\
             }\
         </style>';
 
@@ -198,7 +207,15 @@ const asLoader = function () {
             });
             loaderCreateEle.setAttribute('style', style);
         } else if (args['locationType'] === 'id') {
-
+            // TODO FIX
+            style += 'position:absolute;top:0;right:0;bottom:null;left:0;';
+            // args.location.forEach((loc, idx, arr) => {
+            //     if (idx === 0) { style += ('top:' + 0 + 'px;') }
+            //     if (idx === 1) { style += ('right:' + 0 + 'px;') }
+            //     if (idx === 2) { style += ('bottom:' + null + 'px;') }
+            //     if (idx === 3) { style += ('left:' + 0 + 'px;') }
+            // });
+            loaderCreateEle.setAttribute('style', style);
         }
 
 
@@ -245,6 +262,9 @@ const asLoader = function () {
         // clear the timeout and interval
         clearInterval(loadingInterval);
         clearTimeout(loadingTimeout);
+        if (!loaderBarEle) {
+            return;
+        }
         // finish the progress bar
         loaderBarEle.style.width = '100%';
         // create the css
@@ -252,6 +272,10 @@ const asLoader = function () {
         checkmarkEle.setAttribute('class', 'as-loader-checkmark-ele');
         let checkmarkHTML = '<svg class="as-loader-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>';
         checkmarkEle.innerHTML = checkmarkHTML;
+        // if it's in a contianer... move the checkmark right 10px so it's centered
+        if (args['locationType'] == 'id') {
+            checkmarkEle.setAttribute('style', 'transform:translate(10px, -63%)');
+        }
         // get the flair
         loaderEle.appendChild(checkmarkEle);
 
@@ -264,8 +288,9 @@ const asLoader = function () {
             }, 250);
             // remove loader
             setTimeout(() => {
-                console.log('end');
-                document.body.removeChild(loaderEle);
+                console.log('remove end');
+                loaderEle.parentElement.removeChild(loaderEle);
+                // document.body.removeChild(loaderEle);
                 loaderEle = null;
                 loaderBarEle = null;
                 loadingTimeout = null;
@@ -279,14 +304,15 @@ const asLoader = function () {
         clearInterval(loadingInterval);
         clearTimeout(loadingTimeout);
 
+        if (!loaderBarEle) {
+            return;
+        }
+
         let xMarkEle = document.createElement('div');
         xMarkEle.setAttribute('class', 'as-loader-xmark');
         let leftLoc = loaderBarEle.style.width;
         xMarkEle.setAttribute('style', 'left:' + leftLoc + '');
-        // let xMarkHTML = '\
-        // <svg class="svg-icon" viewBox="0 0 20 20">\
-        //         <path width="20" height="20" fill="red" d="M15.898,4.045c-0.271-0.272-0.713-0.272-0.986,0l-4.71,4.711L5.493,4.045c-0.272-0.272-0.714-0.272-0.986,0s-0.272,0.714,0,0.986l4.709,4.711l-4.71,4.711c-0.272,0.271-0.272,0.713,0,0.986c0.136,0.136,0.314,0.203,0.492,0.203c0.179,0,0.357-0.067,0.493-0.203l4.711-4.711l4.71,4.711c0.137,0.136,0.314,0.203,0.494,0.203c0.178,0,0.355-0.067,0.492-0.203c0.273-0.273,0.273-0.715,0-0.986l-4.711-4.711l4.711-4.711C16.172,4.759,16.172,4.317,15.898,4.045z"></path>\
-        // </svg>'
+
         let xMarkHTML = '<div>x</div>';
 
         xMarkEle.innerHTML = xMarkHTML;
@@ -294,12 +320,18 @@ const asLoader = function () {
         xMarkEle.classList.add('as-loader-xmark-fade');
         setTimeout(() => {
             console.log('end');
-            document.body.removeChild(loaderEle);
-            loaderEle = null;
-            loaderBarEle = null;
-            loadingTimeout = null;
-            loadingInterval = null;
-            loadingPercent = null;
+            loaderEle.classList.add('as-loader-xmark-fadeout');
+            setTimeout(() => {
+                console.log('remove end');
+                loaderEle.classList.remove('as-loader-xmark-fadeout');
+                loaderEle.parentElement.removeChild(loaderEle);
+                // document.body.removeChild(loaderEle);
+                loaderEle = null;
+                loaderBarEle = null;
+                loadingTimeout = null;
+                loadingInterval = null;
+                loadingPercent = null;
+            }, 500)
         }, 2000);
     }
 
@@ -308,6 +340,10 @@ const asLoader = function () {
         console.log('end');
         clearInterval(loadingInterval);
         clearTimeout(loadingTimeout);
+        if (!loaderBarEle) {
+            return;
+        }
+
         loaderBarEle.style.width = '100%';
         setTimeout(() => {
             // let flair = document.getElementById('asLoaderBarFlair');
@@ -318,8 +354,9 @@ const asLoader = function () {
             }, 250);
             // remove loader
             setTimeout(() => {
-                console.log('end');
-                document.body.removeChild(loaderEle);
+                console.log('remove end');
+                loaderEle.parentElement.removeChild(loaderEle);
+                // document.body.removeChild(loaderEle);
                 loaderEle = null;
                 loaderBarEle = null;
                 loadingTimeout = null;

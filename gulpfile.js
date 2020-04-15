@@ -1,13 +1,16 @@
-const { src, dest, series } = require('gulp');
-const jeditor = require('gulp-json-editor');
-const uglify = require('gulp-uglify');
-const stripDebug = require('gulp-strip-debug');
-const babel = require('gulp-babel')
+const { src, dest, series }   = require('gulp');
+const jeditor                 = require('gulp-json-editor');
+const uglify                  = require('gulp-uglify');
+const stripDebug              = require('gulp-strip-debug');
+const babel                   = require('gulp-babel')
+const rename                  = require('gulp-rename');
+const stringReplace           = require('gulp-string-replace');
 
 const config = require('./config.json');
 const buildHistory = require('./buildHistory.json');
 
 var buildVersion = 0;
+var previousBuildVersion = 0;
 
 /** update the build history file */
 function buildHistoryFile() {
@@ -39,6 +42,8 @@ function buildHistoryFile() {
     }
     // set the build version var
     buildVersion = parseFloat(version);
+    previousBuildVersion = parseFloat(maxVersion);
+    console.log(previousBuildVersion);
     // return the history file
     return src('buildHistory.json')
         .pipe(jeditor(history))
@@ -49,21 +54,37 @@ function configFile() {
     // return the config file with the proper version history
     return src('config.json')
         .pipe(jeditor({
-            name: 'asLoader-min-' + buildVersion + '.js',
+            name: 'asLoader-' + buildVersion + '-min.js',
             version: buildVersion,
             createdOn: (new Date()).toString()
         }))
         .pipe(dest('./'));
 }
 
-function buildLibrary() {
+function moveNormalFile() {
+    return src('src/index.js')
+        .pipe(babel({
+            presets: ['@babel/preset-env']
+        }))
+        .pipe(stripDebug())
+        .pipe(rename('asLoader-' + buildVersion + '.js'))
+        .pipe(dest('dist/'));
+}
+
+function buildMinFile() {
     return src('src/index.js')
         .pipe(babel({
             presets: ['@babel/preset-env']
         }))
         .pipe(stripDebug())
         .pipe(uglify())
+        .pipe(rename('asLoader-' + buildVersion + '-min.js'))
         .pipe(dest('dist/'));
 }
+function updateExmaples() {
+    return src('examples/index.html')
+        .pipe(stringReplace('asLoader-' + previousBuildVersion + '-min.js', 'asLoader-' + buildVersion + '-min.js'))
+        .pipe(dest('examples/'))
+}
 
-exports.build = series(buildHistoryFile, configFile, buildLibrary);
+exports.build = series(buildHistoryFile, configFile, moveNormalFile, buildMinFile, updateExmaples);

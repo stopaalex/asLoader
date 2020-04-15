@@ -232,7 +232,8 @@ const asLoader = function () {
 
         } else if (args['locationType'] === 'id') {
             if (loaderEle) {
-                document.body.removeChild(document.getElementById(loaderEle.id));
+                loaderEle.parentElement.removeChild(loaderEle);
+                // document.body.removeChild(document.getElementById(loaderEle.id));
             }
             document.querySelector('#' + args['location']).appendChild(loaderCreateEle);
             loaderEle = document.getElementById(loaderCreateEle.id);
